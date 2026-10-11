@@ -297,8 +297,13 @@
       if (openCards.has(id)) openCards.delete(id); else openCards.add(id);
       renderAtlas();
     }));
-    $('resetAtlas').addEventListener('click', () => {
-      if (!confirm('Forget all discovered states and completed missions?')) return;
+    $('resetAtlas').addEventListener('click', (e) => {
+      const b = e.currentTarget;
+      if (!b.dataset.armed) {   // two-step confirmation without a blocking dialog
+        b.dataset.armed = '1'; b.textContent = 'Click again to forget everything'; b.classList.add('warn');
+        setTimeout(() => { if (b.isConnected) { delete b.dataset.armed; b.textContent = 'Forget discoveries'; b.classList.remove('warn'); } }, 4000);
+        return;
+      }
       saved = { atlas: {}, missions: {} }; persist(); renderAtlas(); renderMissions();
     });
   }
