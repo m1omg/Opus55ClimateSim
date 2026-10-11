@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Worldsmith — Planetary Climate Sandbox</title>
+  <meta name="description" content="Shape the climate of a terrestrial planet: sunlight, mass, water and atmosphere. Find snowballs, eyeballs, moist and runaway greenhouses, steam worlds and Venus analogues, with research-based timescales.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div id="app">
+    <header class="topbar">
+      <div class="brand">
+        <span class="logo" aria-hidden="true"></span>
+        <div>
+          <h1>Worldsmith</h1>
+          <span class="tagline">planetary climate sandbox</span>
+        </div>
+      </div>
+      <div class="top-actions">
+        <label class="preset-pick">
+          <span>World</span>
+          <select id="presetSelect" aria-label="Load a preset world"></select>
+        </label>
+        <button id="resetBtn" class="btn" title="Reload the current world">Restart</button>
+        <button id="helpBtn" class="btn ghost" title="How it works">Science &amp; help</button>
+      </div>
+    </header>
+
+    <main class="layout">
+      <aside class="panel controls" id="controls" aria-label="Planet controls"></aside>
+
+      <section class="stage" id="stage">
+        <canvas id="planet" aria-label="Rendered planet"></canvas>
+        <div class="state-badge" id="stateBadge">
+          <div class="state-dot" id="stateDot"></div>
+          <div>
+            <div class="state-group" id="stateGroup"></div>
+            <div class="state-name" id="stateName">—</div>
+            <div class="state-tags" id="stateTags"></div>
+          </div>
+        </div>
+        <div class="quick-stats" id="quickStats"></div>
+        <div class="mission-hud" id="missionHud" hidden></div>
+        <div class="toasts" id="toasts" aria-live="polite"></div>
+        <div class="nogl" id="noGL" hidden>WebGL is not available in this browser, so the planet cannot be drawn. The simulation, charts and atlas still work.</div>
+        <div class="timebar">
+          <button id="playBtn" class="play" aria-label="Pause"><span class="ico-pause"></span></button>
+          <div class="time-readout">
+            <div class="sim-time" id="simTime">t = 0</div>
+            <div class="rate-info" id="rateInfo"></div>
+          </div>
+          <div class="speed">
+            <input type="range" id="speed" min="-1" max="9" step="0.05" value="2" aria-label="Simulation speed">
+            <div class="speed-label"><span>slow</span><b id="speedLabel"></b><span>deep time</span></div>
+          </div>
+        </div>
+      </section>
+
+      <aside class="panel info" aria-label="Climate information">
+        <nav class="tabs" role="tablist">
+          <button class="tab active" data-tab="status" role="tab">Status</button>
+          <button class="tab" data-tab="charts" role="tab">Charts</button>
+          <button class="tab" data-tab="atlas" role="tab">Atlas <span class="pill" id="atlasCount"></span></button>
+          <button class="tab" data-tab="missions" role="tab">Missions</button>
+          <button class="tab" data-tab="science" role="tab">Science</button>
+        </nav>
+
+        <div class="tab-body" id="tab-status">
+          <div class="state-card" id="stateCard"></div>
+          <div class="narrative" id="narrative"></div>
+          <div class="metrics" id="metrics"></div>
+          <h3 class="sec">Climate log</h3>
+          <ol class="events" id="events"></ol>
+        </div>
+
+        <div class="tab-body" id="tab-charts" hidden>
+          <div class="chart-head">
+            <h3 class="sec">History</h3>
+            <div class="seg" id="histWindow">
+              <button data-span="0" class="on">all</button>
+              <button data-span="1e3">1 kyr</button>
+              <button data-span="1e5">100 kyr</button>
+              <button data-span="1e7">10 Myr</button>
+              <button data-span="1e9">1 Gyr</button>
+            </div>
+          </div>
+          <canvas class="chart" id="chartHistory"></canvas>
+          <canvas class="chart short" id="chartVolatiles"></canvas>
+          <h3 class="sec">Temperature across the planet</h3>
+          <canvas class="chart" id="chartProfile"></canvas>
+          <h3 class="sec">Runaway diagram</h3>
+          <p class="note">Outgoing infrared and absorbed sunlight for a planet held at each surface temperature. Where absorbed sunlight sits above the curve the planet warms; if it clears the radiation limit there is no stable ocean.</p>
+          <canvas class="chart" id="chartRunaway"></canvas>
+        </div>
+
+        <div class="tab-body" id="tab-atlas" hidden>
+          <p class="note">Every climate state you reach is recorded here. Some need patience and deep time; some need a very particular world.</p>
+          <div id="atlas"></div>
+        </div>
+
+        <div class="tab-body" id="tab-missions" hidden>
+          <p class="note">Each mission starts from a preset world and locks some controls. Hold the goal for the required simulated time.</p>
+          <div id="missions"></div>
+        </div>
+
+        <div class="tab-body" id="tab-science" hidden>
+          <div id="science"></div>
+        </div>
+      </aside>
+    </main>
+  </div>
+
+  <script src="js/physics.js"></script>
+  <script src="js/states.js"></script>
+  <script src="js/charts.js"></script>
+  <script src="js/renderer.js"></script>
+  <script src="js/science.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>
