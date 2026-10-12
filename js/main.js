@@ -59,9 +59,13 @@
 
   const CONTROLS = [
     { title: 'Star & orbit', items: [
-      { key: 'flux', label: 'Starlight', type: 'log', min: 0.005, max: 5,
+      { key: 'flux', label: 'Starlight', type: 'log', min: 0.005, max: 5, live: true,
         fmt: (v) => sig(v, 3) + ' S⊕',
-        sub: (v) => `${(v * 1361).toFixed(0)} W/m² · ${model.p.star === 'G' ? '≈' + (1 / Math.sqrt(v)).toFixed(2) + ' AU from a Sun' : Cl.STAR[model.p.star].name}` },
+        sub: (v) => {
+          const lf = model.luminosityFactor();
+          if (model.p.stellarEvolution && lf > 1.0005) return `${(v * 1361).toFixed(0)} W/m² · star ${((lf - 1) * 100).toFixed(1)}% brighter than at the start`;
+          return `${(v * 1361).toFixed(0)} W/m² · ${model.p.star === 'G' ? '≈' + (1 / Math.sqrt(v)).toFixed(2) + ' AU from a Sun' : Cl.STAR[model.p.star].name}`;
+        } },
       { key: 'star', label: 'Star type', type: 'seg', options: ['F', 'G', 'K', 'M'],
         sub: (v) => `${Cl.STAR[v].name}, ~${Cl.STAR[v].teff} K` },
       { key: 'xuv', label: 'Stellar activity (XUV)', type: 'log', min: 0.1, max: 1000,
@@ -100,12 +104,16 @@
   const ctlByKey = {};
   let locks = new Set();
 
+  // The starlight slider shows the star's current output, so it creeps up as
+  // the star brightens; dragging it sets the output at the present age.
   function getVal(key) {
     if (key.startsWith('gas.')) return model.p.gas[key.slice(4)];
+    if (key === 'flux') return model.p.flux * model.luminosityFactor();
     return model.p[key];
   }
   function setVal(key, v) {
     if (key.startsWith('gas.')) model.p.gas[key.slice(4)] = v;
+    else if (key === 'flux') model.p.flux = v / model.luminosityFactor();
     else model.p[key] = v;
   }
   function toPos(c, v) {
